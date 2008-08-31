@@ -1,0 +1,19 @@
+DESCRIPTION="Clone of the PalmOS game Vexed"
+HOMEPAGE="http://freshmeat.net/projects/sdlvexed/"
+SRC_URI="ftp://mirrors.kernel.org/pub/mandrake/Mandrakelinux/official/10.2/SRPMS/contrib/${P}-1mdk.src.rpm"
+
+src_compile() { :; }
+
+src_install() {
+	cd ${S}
+	newbin vexed ${PN}
+	sed -i -e "s|$PREFIX='.'|$PREFIX='/usr/share/${PN}'|" ${D}/usr/bin/${PN}
+
+	dodir /usr/share/${PN}
+	cp -r gfx levelpacks ${D}/usr/share/${PN}/
+
+	newicon gfx/block2.png ${PN}.png
+	make_desktop_entry ${PN} Vexed ${PN} "Game;LogicGame"
+
+	dodoc README.pl
+}

@@ -1,0 +1,97 @@
+sdlvexed
+-------------------------------------------
+This game is a clone of PalmOS game Vexed (http://vexed.sf.net), 
+written in SDL-perl.
+
+Vexed is a puzzle game in which your goal is to move similar blocks
+together, which causes them to disappear. Once all the blocks are gone,
+you've solved the level and you're presented with a new level to solve.
+
+You move blocks by putting the mouse on them and dragging (using mouse
+button) to either the right or left. If an empty space is encountered,
+"gravity" takes over and the blocks fall towards the bottom.
+
+Runtime requirements:
+  perl-5.10.0-5
+  perl-SDL-1.20.3-3
+
+Canonical homepage:
+  http://freshmeat.net/projects/sdlvexed/
+
+Canonical download:
+  http://core.segfault.pl/~krzynio/vexed/ (defunct)
+
+-------------------------------------------
+
+Build instructions:
+  unpack sdlvexed-0.6-1-src.tar.bz2
+    if you use setup to install this src package, it will be
+	 unpacked under /usr/src automatically
+  cd /usr/src
+  cygport ./sdlvexed-0.6-1.cygport all
+
+This will create:
+  /usr/src/sdlvexed-0.6-1-src.tar.bz2
+  /usr/src/sdlvexed-0.6-1.tar.bz2
+
+-------------------------------------------
+
+Files included in the binary package:
+
+  /usr/bin/sdlvexed
+  /usr/share/applications/sdlvexed.desktop
+  /usr/share/doc/sdlvexed-0.6/ChangeLog
+  /usr/share/doc/sdlvexed-0.6/COPYING
+  /usr/share/doc/sdlvexed-0.6/README
+  /usr/share/doc/sdlvexed-0.6/README.pl
+  /usr/share/pixmaps/sdlvexed.png
+  /usr/share/sdlvexed/gfx/about.png
+  /usr/share/sdlvexed/gfx/block1.png
+  /usr/share/sdlvexed/gfx/block10.png
+  /usr/share/sdlvexed/gfx/block2.png
+  /usr/share/sdlvexed/gfx/block3.png
+  /usr/share/sdlvexed/gfx/block4.png
+  /usr/share/sdlvexed/gfx/block5.png
+  /usr/share/sdlvexed/gfx/block6.png
+  /usr/share/sdlvexed/gfx/block7.png
+  /usr/share/sdlvexed/gfx/block8.png
+  /usr/share/sdlvexed/gfx/block9.png
+  /usr/share/sdlvexed/gfx/font1.png
+  /usr/share/sdlvexed/gfx/font2.png
+  /usr/share/sdlvexed/gfx/intro.jpg
+  /usr/share/sdlvexed/gfx/levelpack.png
+  /usr/share/sdlvexed/gfx/pop.wav
+  /usr/share/sdlvexed/gfx/skin.txt
+  /usr/share/sdlvexed/gfx/smash.wav
+  /usr/share/sdlvexed/gfx/tlo.jpg
+  /usr/share/sdlvexed/gfx/vexed.xm
+  /usr/share/sdlvexed/levelpacks/Children's Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Classic II Levels.pdb
+  /usr/share/sdlvexed/levelpacks/Classic Levels.pdb
+  /usr/share/sdlvexed/levelpacks/Confusion Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Impossible Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Panic Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Twister Levels.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 10 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 11 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 12 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 3 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 4 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 5 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 6 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 7 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 8 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety 9 Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety II Pack.pdb
+  /usr/share/sdlvexed/levelpacks/Variety Pack.pdb
+
+------------------
+
+Port Notes:
+
+----- version 0.6-1 -----
+Initial release for Cygwin.
+
+
+Cygwin port maintained by:
+http://cygwinports.dotsrc.org/

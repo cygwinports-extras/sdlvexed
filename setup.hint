@@ -1,0 +1,13 @@
+category: Games
+requires: perl perl-SDL
+sdesc: "Clone of the PalmOS game Vexed"
+ldesc: "This game is a clone of PalmOS game Vexed (vexed.sf.net),
+written in SDL-perl.
+
+Vexed is a puzzle game in which your goal is to move similar blocks
+together, which causes them to disappear. Once all the blocks are gone,
+you've solved the level and you're presented with a new level to solve.
+
+You move blocks by putting the mouse on them and dragging (using mouse
+button) to either the right or left. If an empty space is encountered,
+'gravity' takes over and the blocks fall towards the bottom."
