@@ -1,0 +1,25 @@
+DESCRIPTION="Clone of the PalmOS game Vexed"
+HOMEPAGE="http://freshmeat.net/projects/sdlvexed/"
+SRC_URI="ftp://mirrors.kernel.org/pub/mandrake/Mandrakelinux/official/2009.1/SRPMS/contrib/release/${P}-8mdv2009.1.src.rpm"
+
+CYGPORT_USE_UNSTABLE_API=1
+src_unpack_hook() {
+	cygpatch sdlvexed-new-perl-sdl.patch
+}
+
+src_compile() { :; }
+
+src_install() {
+	cd ${T}
+	echo -e '#! /bin/sh\ncd /usr/share/sdlvexed; ./vexed ${@}' > sdlvexed
+	dobin sdlvexed
+
+	cd ${S}
+	dodir /usr/share/${PN}
+	cp -r vexed gfx levelpacks ${D}/usr/share/${PN}/
+
+	newicon gfx/block2.png ${PN}.png
+	make_desktop_entry ${PN} Vexed ${PN} "Game;LogicGame"
+
+	dodoc README.pl
+}
