@@ -1,0 +1,396 @@
+https://forums.mageia.org/en/viewtopic.php?f=10&t=1659
+
+--- vexed.orig	2011-12-28 10:28:54.471285164 +0100
++++ vexed	2011-12-28 10:37:18.620982746 +0100
+@@ -10,13 +10,18 @@
+ #
+ # -+- !apcohforce -+-
+ 
+-use SDL::App;
++use SDL;
++use SDLx::App;
+ use SDL::Surface;
++use SDLx::Surface;
+ use SDL::Event;
+-use SDL::Font;
+-use SDL::SFont;
++use SDL::Events;
++use SDLx::SFont;
+ use SDL::Constants;
+ use SDL::Mixer;
++use SDL::Mixer::Music;
++use SDL::Mixer::Samples;
++use SDL::Image;
+ 
+ use strict;
+ 
+@@ -38,9 +43,9 @@
+ #----[ main loop ]------------------------------------------------------------------------------------------------#
+ 
+ while(1){
+-    $event->pump();
++    SDL::Events::pump_events();
+ 
+-    if ($event->poll != 0) {
++    if (SDL::Events::poll_event($event)) {
+ 	$keypressed = $event->key_sym();
+ 
+ 	if ($event->type == SDL_KEYDOWN){ 
+@@ -53,7 +58,7 @@
+ 	    if ($keypressed==SDLK_l) { &levelpack_choose};
+ 	    if ($keypressed==SDLK_m) { 
+ 		if ($mixer_enabled) {
+-		    if ($ag->{music}) {$mixer->pause_music(); $ag->{music}=0 } else { $mixer->resume_music(); $ag->{music}=1 };
++		    if ($ag->{music}) {SDL::Mixer::Music::pause_music(); $ag->{music}=0 } else { SDL::Mixer::Music::resume_music(); $ag->{music}=1 };
+ 		}
+ 	    }
+ 	    
+@@ -167,9 +172,9 @@
+ 
+     while (1){
+ 	
+-	$event->pump();
++	SDL::Events::pump_events();
+ 	
+-	if ($event->poll != 0) {
++	if (SDL::Events::poll_event($event)) {
+ 	    $keypressed = $event->key_sym(); # turbo pascal :>
+ 	    
+ 	    if ($event->type == SDL_KEYDOWN){
+@@ -209,7 +214,7 @@
+     &remove_image_from_background($ia{levelpack}, $ag->{skin}->{levelpackimg_x},$ag->{skin}->{levelpackimg_y}) ;
+ 
+     &redraw;
+-    $app->update(@update_rects);
++    $app->update();
+     @update_rects = ();
+     
+ 
+@@ -220,7 +225,7 @@
+ 	&load('changelevelpack');
+ 	&board;
+ 	$app->flip;
+-	#$event->pump while ($event->poll != 0);
++	#SDL::Events::pump_events() while (SDL::Events::poll_event($event));
+     }
+ 
+ }
+@@ -280,20 +285,20 @@
+ 
+ sub about {
+     &put_image($ia{about}, $ag->{skin}->{about_x},$ag->{skin}->{about_y}) ;
+-    $app->update(@update_rects);
++    $app->update();
+     @update_rects = ();
+ 
+     while (1){
+-	$event->pump();
++	SDL::Events::pump_events();
+ 	my $typ=$event->type;
+-	if ($event->poll != 0) {
++	if (SDL::Events::poll_event($event)) {
+ 	    last if ($event->type == SDL_KEYDOWN || $event->type==SDL_MOUSEBUTTONDOWN);
+ 	}
+ 	$app->delay(50);
+     }
+     &erase_image($ia{about}, $ag->{skin}->{about_x},$ag->{skin}->{about_y}) ;
+     &redraw;
+-    $app->update(@update_rects);
++    $app->update();
+     @update_rects = ();
+ }
+ 
+@@ -356,7 +361,7 @@
+     sleep 1;
+     $ag->{points}+=5;
+     &ascii2board($board);
+-    $event->pump while ($event->poll != 0);
++    SDL::Events::pump_events() while (SDL::Events::poll_event($event));
+ };
+ 
+ 
+@@ -592,15 +597,15 @@
+     if ($type eq 'small') {    $smallfont->use() } else { $font->use() };
+ 
+     if ($p eq 'R'){
+-	$x1-=SDL::SFont::TextWidth($text);
++	$x1-=SDLx::SFont::TextWidth($text);
+     }
+     if (! $noclear){
+ 	&clear_text($name);
+     }
+ 
+-    $app->print($x1,$y1, $text);
++    SDLx::SFont::print_text($app, $x1, $y1, $text);
+     $ag->{font}->{$name}->{x1}=$x1;$ag->{font}->{$name}->{y1}=$y1;
+-    $ag->{font}->{$name}->{x2}=$x1+SDL::SFont::TextWidth($text); $ag->{font}->{$name}->{y2}=$y1 + $h;
++    $ag->{font}->{$name}->{x2}=$x1+SDLx::SFont::TextWidth($text); $ag->{font}->{$name}->{y2}=$y1 + $h;
+     $app->flip;
+ }
+ 
+@@ -628,12 +633,12 @@
+     if ($n){
+         for (my $i=0; $i < 4; $i++){
+ 	    clear_to_background($ag->{sx} + $x * 32, $ag->{sy} + $y*32, $ag->{sx} + ($x+1) * 32, $ag->{sy} + ($y+1)*32);
+-	    $app->update(@update_rects);
++	    $app->update();
+             @update_rects = ();
+             if ($i < 3){
+                 $app->delay(40);
+                 &put_image($ia{ $n }, $ag->{sx} + $x * 32, $ag->{sy} + $y*32 );
+-                $app->update(@update_rects);
++                $app->update();
+                 @update_rects = ();
+                 $app->delay(20);
+             }
+@@ -664,7 +669,7 @@
+ 		my $synchro_ticks=$app->ticks();
+ 		&erase_image($ia{ $n }, $x-$s, $y1 );
+ 		&put_image($ia{ $n }, $x,$y1);
+-		$app->update(@update_rects);
++		$app->update();
+ 		@update_rects = ();
+ 		my $to_wait = $TARGET_ANIM_SPEED - ($app->ticks() - $synchro_ticks);
+ 		if ($to_wait < 0 || $to_wait > $TARGET_ANIM_SPEED ) { $to_wait= $TARGET_ANIM_SPEED };
+@@ -678,7 +683,7 @@
+                 my $synchro_ticks=$app->ticks();
+                 &erase_image($ia{ $n }, $x+$s, $y1 );
+                 &put_image($ia{ $n }, $x,$y1);
+-                $app->update(@update_rects);
++                $app->update();
+                 @update_rects = ();
+                 my $to_wait = $TARGET_ANIM_SPEED - ($app->ticks() - $synchro_ticks);
+                 if ($to_wait < 0 || $to_wait > $TARGET_ANIM_SPEED ) { $to_wait= $TARGET_ANIM_SPEED };
+@@ -697,7 +702,7 @@
+ 	    } else {
+ 		&put_image($ia{ $n }, $x1,$y-1);
+ 	    }
+-	    $app->update(@update_rects);
++	    $app->update();
+ 	    @update_rects = ();
+ 	    my $to_wait = $FLOW_ANIM_SPEED - ($app->ticks() - $synchro_ticks);
+ 	    if ($to_wait < 0 || $to_wait > $FLOW_ANIM_SPEED ) { $to_wait= $FLOW_ANIM_SPEED };
+@@ -735,12 +740,13 @@
+     &load_skin("$PREFIX/gfx/skin.txt");
+ 
+     # create a new sdl application
+-    $app = new SDL::App  
+-	-width => $ag->{skin}->{window_x}, 
+-	-height => $ag->{skin}->{window_y},
+-	-title => 'Perl-SDL Vexed'
++    $app = SDLx::App->new(  
++	title => 'Perl-SDL Vexed',
++	width => $ag->{skin}->{window_x}, 
++	height => $ag->{skin}->{window_y},
++	depth => 32)
+ 	or die $!;
+-    $event = new SDL::Event;
++    $event = SDL::Event->new();
+     
+     ### set initial values for couple of variables
+     
+@@ -749,13 +755,8 @@
+     $FLOW_ANIM_SPEED=6;
+     $SAVE_DIR="$ENV{HOME}/.vexed";
+     
+-    my $high_rect = new SDL::Rect('-x' => 0 , '-y' =>  0,
+-                                  '-width' => $ag->{skin}->{window_x}, -height => $ag->{skin}->{window_y});
+-    
+-    $background = new SDL::Surface(-width => $app->width, -height => $app->height, -depth => 32, -Amask => '0 but true');
+-    $background_orig = new SDL::Surface(-width => $app->width, -height => $app->height, -depth => 32, -Amask => '0 but true');
+-    
+-
++    my $high_rect = SDL::Rect->new(0 , 0,
++                                   $ag->{skin}->{window_x}, $ag->{skin}->{window_y});
+     
+     # load images
+     for (my $i=1; $i < 11; $i++){
+@@ -765,7 +766,7 @@
+     $ia{about}=&add_image("about.png");
+     $ia{levelpack}=&add_image("levelpack.png");
+ 
+-    $mixer = eval { new SDL::Mixer(-frequency => 44100, -channels => 2, -size => 1024); };
++    $mixer = SDL::Mixer::open_audio(44100, AUDIO_S16SYS, 2, 1024);
+     if ($@) {
+ 	$@ =~ s| at \S+ line.*\n||;
+ 	warn "\nWarning: can't initialize sound (reason: $@).\n";
+@@ -775,18 +776,18 @@
+ 	my @sounds = qw(smash pop);
+ 	foreach (@sounds) {
+ 	    my $sound_path = "$PREFIX/gfx/$_.wav";
+-	    $sound{$_} = new SDL::Sound($sound_path);
++	    $sound{$_} = SDL::Mixer::Samples::load_WAV($sound_path);
+ 	    if ($_ eq 'pop'){
+-		$sound{$_}->volume(25);
++		SDL::Mixer::Samples::volume_chunk($sound{$_}, 25);
+ 	    } else {
+-		$sound{$_}->volume(90);
++		SDL::Mixer::Samples::volume_chunk($sound{$_}, 90);
+ 	    }
+ 	}
+ 	$mixer_enabled=1;
+     }
+  
+-    $font = SDL::Font->new("$PREFIX/gfx/font1.png") or die $!;
+-    $smallfont = SDL::Font->new("$PREFIX/gfx/font2.png") or die $!;
++    $font = SDLx::SFont->new("$PREFIX/gfx/font1.png") or die $!;
++    $smallfont = SDLx::SFont->new("$PREFIX/gfx/font2.png") or die $!;
+     $font->use();
+     
+     # check for save game and config directory
+@@ -799,32 +800,36 @@
+     &load;
+ 
+     &intro;
+-    $backgr= new SDL::Surface(-name => "$PREFIX/gfx/tlo.jpg");
+-    $backgr->blit($high_rect,$app,$high_rect);
+-    $backgr->blit($high_rect, $background, $high_rect);
+-    $backgr->blit($high_rect, $background_orig, $high_rect);
++    $backgr=SDL::Image::load("$PREFIX/gfx/tlo.jpg");
++    $backgr=SDLx::Surface->new(surface => $backgr);
++    $backgr->blit($app,$high_rect,$high_rect);
++    $backgr->blit($background,$high_rect,$high_rect);
++    $backgr->blit($background_orig,$high_rect,$high_rect);
+     if ($mixer_enabled){ # enable music if needed
+-       $music = new SDL::Music("$PREFIX/gfx/vexed.xm");
+-       $mixer->play_music($music, -1);
++       $music = SDL::Mixer::Music::load_MUS("$PREFIX/gfx/vexed.xm");
++       SDL::Mixer::Music::play_music($music, -1);
+        if (!$ag->{music}){
+-	   $mixer->pause_music();
++	   SDL::Mixer::Music::pause_music();
+        }
+     }
+ 
+ 
+ 
+     &board;
+-    $event->pump while ($event->poll != 0);
++    SDL::Events::pump_events() while (SDL::Events::poll_event($event));
+ 
+ }
+ 
+ 
+ sub intro {
+     my ($high_rect)=(@_);
+-    $backgr= new SDL::Surface(-name => "$PREFIX/gfx/intro.jpg");
+-    $backgr->blit($high_rect,$app,$high_rect);
+-    $backgr->blit($high_rect, $background, $high_rect);
+-    $backgr->blit($high_rect, $background_orig, $high_rect);
++    $backgr=SDL::Image::load("$PREFIX/gfx/intro.jpg");
++    $backgr=SDLx::Surface->new(surface => $backgr);
++    $backgr->blit($app,$high_rect,$high_rect);
++    $background=SDL::Image::load("$PREFIX/gfx/intro.jpg");
++    $background=SDLx::Surface->new(surface => $background);
++    $background_orig=SDL::Image::load("$PREFIX/gfx/intro.jpg");
++    $background_orig=SDLx::Surface->new(surface => $background_orig);
+ 
+     $app->flip;
+ 
+@@ -855,7 +860,7 @@
+     &put_block(9,$x,7);
+     &put_block(9,17-$x,1);
+     $app->flip;
+-    if ($event->poll != 0) {
++    if (SDL::Events::poll_event($event)) {
+             if ($event->type == SDL_KEYDOWN){
+                      $last=1; last;
+             }
+@@ -874,7 +879,7 @@
+     
+ 	    my $s=$spid[int(rand(3))];
+ 
+-	    if ($event->poll != 0) {
++	    if (SDL::Events::poll_event($event)) {
+ 	                if ($event->type == SDL_KEYDOWN){
+ 				$last=1; last;
+ 			}	
+@@ -975,34 +980,35 @@
+ 
+ 
+ sub play_sound($) {
+-    $mixer_enabled && $mixer && $sound{$_[0]} and $mixer->play_channel(-1, $sound{$_[0]}, 0);
++    $mixer_enabled && $mixer && $sound{$_[0]} and SDL::Mixer::Music::play_channel(-1, $sound{$_[0]}, 0);
+ }
+ 
+ sub add_image($) {
+     my $file = "$PREFIX/gfx/$_[0]";
+-    my $img = new SDL::Surface(-name => $file) or die "FATAL: Couldn't load `$file' into a SDL::Surface.\n";
++    my $img = SDL::Image::load($file) or die "FATAL: Couldn't load `$file' into a SDL::Surface.\n";
++    $img = SDLx::Surface->new(surface => $img);
+     add_default_rect($img);
+     return $img;
+ }
+ 
+ sub add_default_rect($) {
+     my ($surface) = @_;
+-    $rects{$surface} = new SDL::Rect(-width => $surface->width, -height => $surface->height);
++    $rects{$surface} = SDL::Rect->new(0, 0, $surface->w, $surface->h);
+ }
+ 
+ sub put_image($$$) {
+     my ($image, $x, $y) = @_;
+     ($x == 0 && $y == 0) and print "put_image: warning, X and Y are 0\n";
+     $rects{$image} or die "please don't call me with no rects\n";
+-    my $drect = new SDL::Rect(-width => $image->width, -height => $image->height, -x => $x, '-y' => $y);
+-    $image->blit($rects{$image}, $app, $drect);
++    my $drect = SDL::Rect->new($x, $y, $image->w, $image->h);
++    $image->blit($app, $rects{$image}, $drect);
+     push @update_rects, $drect;
+ }
+ 
+ sub erase_image_from($$$$) {
+     my ($image, $x, $y, $img) = @_;
+-    my $drect = new SDL::Rect(-width => $image->width, -height => $image->height, -x => $x, '-y' => $y);
+-    $img->blit($drect, $app, $drect);
++    my $drect = SDL::Rect->new($x, $y, $image->w, $image->h);
++    $img->blit($app, $drect, $drect);
+     push @update_rects, $drect;
+ }
+ 
+@@ -1016,14 +1022,14 @@
+     my $drect;
+     ($x == 0 && $y == 0) and print "put_image_to_background: warning, X and Y are 0\n";
+     if ($y > 0) {
+-        $drect = new SDL::Rect(-width => $image->width, -height => $image->height, -x => $x, '-y' => $y);
+-        $display_on_app_disabled or $image->blit($rects{$image}, $app, $drect);
+-        $image->blit($rects{$image}, $background, $drect);
++        $drect = SDL::Rect->new($x, $y, $image->w, $image->h);
++        $display_on_app_disabled or $image->blit($app, $rects{$image}, $drect);
++        $image->blit($background, $rects{$image}, $drect);
+     } else {  #- clipping seems to not work when from one Surface to another Surface, so I need to do clipping by hand
+-        $drect = new SDL::Rect(-width => $image->width, -height => $image->height + $y, -x => $x, '-y' => 0);
+-        my $irect = new SDL::Rect(-width => $image->width, -height => $image->height + $y, '-y' => -$y);
+-        $display_on_app_disabled or $image->blit($irect, $app, $drect);
+-        $image->blit($irect, $background, $drect);
++        $drect = SDL::Rect->new($x, 0, $image->w, $image->h + $y);
++        my $irect = SDL::Rect->new(0, -$y, $image->w, $image->h + $y);
++        $display_on_app_disabled or $image->blit($app, $irect, $drect);
++        $image->blit($background, $irect, $drect);
+     }
+     push @update_rects, $drect;
+ }
+@@ -1031,17 +1037,17 @@
+ sub remove_image_from_background($$$) {
+     my ($image, $x, $y) = @_;
+     ($x == 0 && $y == 0) and print "remove_image_from_background: warning, X and Y are 0\n";
+-    my $drect = new SDL::Rect(-width => $image->width, -height => $image->height, -x => $x, '-y' => $y);
+-    $background_orig->blit($drect, $background, $drect);
+-    $background_orig->blit($drect, $app, $drect);
++    my $drect = SDL::Rect->new($x, $y, $image->w, $image->h);
++    $background_orig->blit($background, $drect, $drect);
++    $background_orig->blit($app, $drect, $drect);
+     push @update_rects, $drect;
+ }
+ 
+ sub clear_to_background(){
+     my ($x1, $y1, $x2, $y2)=@_;
+-    my $drect = new SDL::Rect(-width => $x2-$x1, -height => $y2-$y1, -x => $x1, '-y' => $y1);
+-    $background_orig->blit($drect, $background, $drect);
+-    $background_orig->blit($drect, $app, $drect);
++    my $drect = SDL::Rect->new($x1, $y1, $x2-$x1, $y2-$y1);
++    $background_orig->blit($background, $drect, $drect);
++    $background_orig->blit($app, $drect, $drect);
+     push @update_rects, $drect;
+ }
+ 

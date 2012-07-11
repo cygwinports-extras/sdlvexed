@@ -1,11 +1,8 @@
 DESCRIPTION="Clone of the PalmOS game Vexed"
 HOMEPAGE="http://freshmeat.net/projects/sdlvexed/"
-SRC_URI="ftp://mirrors.kernel.org/pub/mandrake/Mandrakelinux/official/2009.1/SRPMS/contrib/release/${P}-8mdv2009.1.src.rpm"
-
-CYGPORT_USE_UNSTABLE_API=1
-src_unpack_hook() {
-	cygpatch sdlvexed-new-perl-sdl.patch
-}
+SRC_URI="${P}.tar.bz2"
+PATCH_URI="sdlvexed-new-perl-sdl.patch
+           sdlvexed-newer-perl-sdl.patch"
 
 src_compile() { :; }
 
