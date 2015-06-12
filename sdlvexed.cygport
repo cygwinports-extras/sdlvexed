@@ -1,0 +1,32 @@
+NAME="sdlvexed"
+VERSION=0.6
+RELEASE=11
+CATEGORY="Games"
+SUMMARY="Clone of the PalmOS game Vexed"
+DESCRIPTION="This game is a clone of PalmOS game Vexed (vexed.sf.net),
+written in SDL-perl. Vexed is a puzzle game in which your goal is to move
+similar blocks together, which causes them to disappear. Once all the blocks
+are gone, you have solved the level and are presented with a new level to solve."
+HOMEPAGE="http://freshmeat.net/projects/sdlvexed/"
+SRC_URI="sdlvexed-${VERSION}.tar.bz2"
+PATCH_URI="sdlvexed-new-perl-sdl.patch
+           sdlvexed-newer-perl-sdl.patch"
+
+ARCH=noarch
+
+src_compile() { :; }
+
+src_install() {
+	cd ${T}
+	echo -e '#! /bin/sh\ncd /usr/share/sdlvexed; ./vexed ${@}' > sdlvexed
+	dobin sdlvexed
+
+	cd ${S}
+	dodir /usr/share/${NAME}
+	cp -a vexed gfx levelpacks ${D}/usr/share/${NAME}/
+
+	newicon gfx/block2.png sdlvexed.png
+	make_desktop_entry sdlvexed Vexed sdlvexed "Game;LogicGame"
+
+	dodoc README.pl
+}
